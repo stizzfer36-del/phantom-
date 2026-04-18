@@ -35,10 +35,12 @@ TARGET_PCT = 0.08
 MAX_POSITIONS  = 2
 POOL_ALLOC_PCT = 0.50   # up to 50% of pool cash per signal
 
+# symbol = yfinance ticker used for sim execution
+# display = short label shown in summaries
 _COINS = [
-    {"id": "bitcoin",  "symbol": "BTC", "news_query": "bitcoin BTC"},
-    {"id": "ethereum", "symbol": "ETH", "news_query": "ethereum ETH"},
-    {"id": "solana",   "symbol": "SOL", "news_query": "solana SOL"},
+    {"id": "bitcoin",  "symbol": "BTC-USD", "display": "BTC", "news_query": "bitcoin BTC"},
+    {"id": "ethereum", "symbol": "ETH-USD", "display": "ETH", "news_query": "ethereum ETH"},
+    {"id": "solana",   "symbol": "SOL-USD", "display": "SOL", "news_query": "solana SOL"},
 ]
 
 _COINGECKO = "https://api.coingecko.com/api/v3"
@@ -84,13 +86,12 @@ def generate_signals(state: dict[str, Any]) -> list[dict[str, Any]]:
     signals: list[dict] = []
 
     for coin in _COINS:
-        symbol = coin["symbol"]
-        if symbol in held_symbols:
+        if coin["symbol"] in held_symbols:   # check yf ticker, not display name
             continue
 
         candles = _ohlc(coin["id"])
         if not candles or len(candles) < 35:
-            logger.warning("crypto_swing: not enough candles for %s (%s)", symbol, len(candles) if candles else 0)
+            logger.warning("crypto_swing: not enough candles for %s (%s)", coin["display"], len(candles) if candles else 0)
             continue
 
         closes = np.array([c[4] for c in candles], dtype=float)
@@ -138,7 +139,8 @@ def generate_signals(state: dict[str, Any]) -> list[dict[str, Any]]:
         position_size = round(min(pool_cash * POOL_ALLOC_PCT, pool_cash), 2)
 
         signals.append({
-            "asset":            symbol,
+            "asset":            coin["symbol"],   # yfinance ticker e.g. "BTC-USD"
+            "display":          coin["display"],  # short label e.g. "BTC"
             "coin_id":          coin["id"],
             "direction":        "long",
             "pool":             POOL,
