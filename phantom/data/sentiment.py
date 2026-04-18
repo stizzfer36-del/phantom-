@@ -185,6 +185,8 @@ def _fetch_news(query: str, page_size: int = 20, language: str = "en") -> list[d
             _news_key_warned = True
         return None
     try:
+        # Key goes in a header, NOT a query param, so it never appears in URLs
+        # (and therefore never leaks into httpx error messages or server logs).
         resp = httpx.get(
             _NEWSAPI_URL,
             params={
@@ -192,8 +194,8 @@ def _fetch_news(query: str, page_size: int = 20, language: str = "en") -> list[d
                 "pageSize": page_size,
                 "language": language,
                 "sortBy":   "publishedAt",
-                "apiKey":   api_key,
             },
+            headers={"X-Api-Key": api_key},
             timeout=_TIMEOUT,
         )
         resp.raise_for_status()

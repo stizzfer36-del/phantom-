@@ -19,8 +19,16 @@ build/
 portfolio_state.json
 portfolio_state.json.tmp
 
-# Environment secrets
+# Environment secrets — catch all variants, but keep the example file
 .env
+*.env
+.env.*
+.env.local
+secrets.json
+*.key
+*.pem
+credentials.json
+!.env.example
 
 # Editor / OS
 .DS_Store

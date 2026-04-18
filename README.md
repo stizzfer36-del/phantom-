@@ -7,6 +7,18 @@ against a virtual $80 bankroll — all without risking real money.
 
 ---
 
+## Security
+
+**Real API keys must never be committed to this repository.**
+
+- Copy `.env.example` to `.env` and fill in your keys. `.env` is gitignored; `.env.example` is not — keep it blank placeholders only.
+- If you run Phantom inside Claude Code's web environment, any value you put in the environment-variables field is visible to anyone who has access to that environment. Use **paper-trading-only** Alpaca keys there — never live or production credentials.
+- The NewsAPI key is sent as an HTTP header (`X-Api-Key`), not as a URL query parameter, so it cannot leak into server access logs or exception messages.
+- Alpaca keys are sent as request headers (`APCA-API-KEY-ID` / `APCA-API-SECRET-KEY`), not embedded in URLs.
+- If you suspect a key has been exposed, revoke it immediately at the issuing service and generate a new one.
+
+---
+
 ## How it works
 
 Run one cycle with:
