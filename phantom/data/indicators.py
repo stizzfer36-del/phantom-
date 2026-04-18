@@ -189,6 +189,52 @@ def bollinger_bands(
 
 
 # ---------------------------------------------------------------------------
+# ATR (Average True Range)
+# ---------------------------------------------------------------------------
+
+def atr(highs, lows, closes, period: int = 14) -> float | None:
+    """
+    Wilder-smoothed Average True Range.
+
+    True range = max(high-low, |high-prev_close|, |low-prev_close|).
+    Seeded with the simple mean of the first `period` TR values, then
+    Wilder-smoothed for the remainder.
+    """
+    h, l, c = _arr(highs), _arr(lows), _arr(closes)
+    if len(c) < period + 1:
+        logger.warning("atr: need at least %d bars, got %d", period + 1, len(c))
+        return None
+
+    tr = np.maximum(
+        h[1:] - l[1:],
+        np.maximum(np.abs(h[1:] - c[:-1]), np.abs(l[1:] - c[:-1])),
+    )
+    result = float(tr[:period].mean())
+    for i in range(period, len(tr)):
+        result = (result * (period - 1) + float(tr[i])) / period
+    return round(result, 8)
+
+
+# ---------------------------------------------------------------------------
+# VWAP (Volume Weighted Average Price)
+# ---------------------------------------------------------------------------
+
+def vwap(highs, lows, closes, volumes) -> float | None:
+    """
+    VWAP computed over the provided bars.  typical_price = (H+L+C)/3.
+    """
+    h, l, c, v = _arr(highs), _arr(lows), _arr(closes), _arr(volumes)
+    if len(c) == 0:
+        logger.warning("vwap: empty input")
+        return None
+    total_vol = float(v.sum())
+    if total_vol == 0.0:
+        return None
+    typical = (h + l + c) / 3.0
+    return round(float((typical * v).sum() / total_vol), 8)
+
+
+# ---------------------------------------------------------------------------
 # Volume ratio
 # ---------------------------------------------------------------------------
 
