@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Runtime state
+portfolio_state.json
+portfolio_state.json.tmp
+
+# Environment secrets
+.env
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
