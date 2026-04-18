@@ -21,7 +21,7 @@ from typing import Any
 import httpx
 
 from phantom.data.indicators import rsi, vwap
-from phantom.data.prices import _alpaca_headers, _ALPACA_DATA, _TIMEOUT, get_stock_snapshots
+from phantom.data.prices import _alpaca_headers, _ALPACA_DATA, _TIMEOUT, get_stock_snapshots, alpaca_configured
 from phantom.data.sentiment import get_news_sentiment
 from phantom.data.scanner import _DEFAULT_EQUITY_UNIVERSE
 
@@ -75,6 +75,10 @@ def generate_signals(
 
     symbols  — custom watchlist; defaults to _PENNY_UNIVERSE.
     """
+    if not alpaca_configured():
+        logger.warning("penny_scanner: ALPACA_API_KEY not set — strategy skipped")
+        return []
+
     pool_cash  = state["pools"][POOL]["cash"]
     open_slots = MAX_POSITIONS - _open_position_count(state, POOL)
     held       = set(state["pools"][POOL]["positions"].keys())

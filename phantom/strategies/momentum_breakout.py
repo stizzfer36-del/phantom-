@@ -22,7 +22,7 @@ import httpx
 import numpy as np
 
 from phantom.data.indicators import rsi, ema9, ema21, atr
-from phantom.data.prices import _alpaca_headers, _ALPACA_DATA, _TIMEOUT
+from phantom.data.prices import _alpaca_headers, _ALPACA_DATA, _TIMEOUT, alpaca_configured
 from phantom.data.scanner import _DEFAULT_EQUITY_UNIVERSE
 
 logger = logging.getLogger(__name__)
@@ -67,6 +67,10 @@ def generate_signals(
     symbols — optional watchlist; defaults to _DEFAULT_EQUITY_UNIVERSE.
     Fetches LOOKBACK + ATR_PERIOD + 1 bars per symbol to satisfy all indicators.
     """
+    if not alpaca_configured():
+        logger.warning("momentum_breakout: ALPACA_API_KEY not set — strategy skipped")
+        return []
+
     pool_cash  = state["pools"][POOL]["cash"]
     open_slots = MAX_POSITIONS - _open_position_count(state, POOL)
     held       = set(state["pools"][POOL]["positions"].keys())

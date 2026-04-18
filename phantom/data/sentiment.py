@@ -25,6 +25,9 @@ _REDDIT_UA   = "python:phantom-sim:0.1 (market analysis tool)"
 
 DEFAULT_SUBREDDITS = ["wallstreetbets", "pennystocks", "cryptocurrency", "solana"]
 
+# Warn only once per process when a key is absent
+_news_key_warned = False
+
 _BULLISH = {
     "buy", "long", "bull", "bullish", "moon", "rocket", "pump", "breakout",
     "hold", "strong", "upside", "gain", "profit", "rally", "surge", "squeeze",
@@ -172,11 +175,14 @@ def get_reddit_sentiment(
 def _fetch_news(query: str, page_size: int = 20, language: str = "en") -> list[dict] | None:
     """
     Fetch recent headlines from NewsAPI for the given query string.
-    Requires NEWS_API_KEY env var.
+    Requires NEWS_API_KEY (or NEWSAPI_KEY) env var.
     """
-    api_key = os.getenv("NEWS_API_KEY", "")
+    global _news_key_warned
+    api_key = os.getenv("NEWS_API_KEY") or os.getenv("NEWSAPI_KEY", "")
     if not api_key:
-        logger.warning("_fetch_news: NEWS_API_KEY not set")
+        if not _news_key_warned:
+            logger.warning("NEWS_API_KEY not set — news sentiment disabled")
+            _news_key_warned = True
         return None
     try:
         resp = httpx.get(

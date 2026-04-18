@@ -24,10 +24,18 @@ _TIMEOUT      = 12
 # Alpaca helpers
 # ---------------------------------------------------------------------------
 
+def alpaca_configured() -> bool:
+    """Return True only when both Alpaca credentials are present."""
+    return bool(os.getenv("ALPACA_API_KEY")) and bool(
+        os.getenv("ALPACA_API_SECRET") or os.getenv("ALPACA_SECRET_KEY")
+    )
+
+
 def _alpaca_headers() -> dict[str, str]:
+    secret = os.getenv("ALPACA_API_SECRET") or os.getenv("ALPACA_SECRET_KEY", "")
     return {
         "APCA-API-KEY-ID":     os.getenv("ALPACA_API_KEY", ""),
-        "APCA-API-SECRET-KEY": os.getenv("ALPACA_API_SECRET", ""),
+        "APCA-API-SECRET-KEY": secret,
     }
 
 
